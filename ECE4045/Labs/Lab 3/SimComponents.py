@@ -137,7 +137,9 @@ class PacketSink(object):
                 self.last_arrival = now
             self.packets_rec += 1
             self.bytes_rec += pkt.size
+
             self.packets.append(pkt)
+            
             if self.debug:
                 print(pkt)
 
