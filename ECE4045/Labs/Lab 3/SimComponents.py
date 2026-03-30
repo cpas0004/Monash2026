@@ -122,6 +122,8 @@ class PacketSink(object):
         self.selector = selector
         self.last_arrival = 0.0
 
+        self.packets = []  # Store packets if you want to do more detailed analysis later
+
     def put(self, pkt):
         if not self.selector or self.selector(pkt):
             now = self.env.now
@@ -135,6 +137,7 @@ class PacketSink(object):
                 self.last_arrival = now
             self.packets_rec += 1
             self.bytes_rec += pkt.size
+            self.packets.append(pkt)
             if self.debug:
                 print(pkt)
 
