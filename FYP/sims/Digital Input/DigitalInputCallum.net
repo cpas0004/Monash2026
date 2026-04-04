@@ -1,0 +1,38 @@
+* C:\Monash\Monash2026\FYP\sims\Digital Input\DigitalInputCallum.asc
+R1 v_divided vin 90.9k
+R2 0 v_divided 10k
+V1 vin 0 PULSE(0ms 12V 0 50m 50m)
+V14 3.3V 0 3.3
+V15 5V 0 5V
+XU3 0 vin SMBJ5_0A
+XU6 0 vin DI_BZT52C30
+R13 vref_3v3 3.3V 261k
+R14 0 vref_3v3 10k
+R15 3.3V vout_3v3 10k
+R16 vout_3v3 vref_3v3 500k
+XU5 vref_3v3 v_divided 5V 0 vout_3v3 LM290x
+C4 vref_3v3 0 10p
+R3 vref_5v 3.3V 261k
+R4 0 vref_5v 10k
+R5 3.3V vout_5v 10k
+R6 vout_5v vref_5v 500k
+XU1 vref_5v v_divided 5V 0 vout_5v LM290x
+C1 vref_5v 0 10p
+R7 vref_12v 3.3V 39.2k
+R8 0 vref_12v 10k
+R9 3.3V vout_12v 10k
+R10 vout_12v vref_12v 200k
+XU2 vref_12v v_divided 5V 0 vout_12v LM290x
+C2 vref_12v 0 10p
+R11 vref_24v 3.3V 24k
+R12 0 vref_24v 10k
+R17 3.3V vout_24v 10k
+R18 vout_24v vref_24v 160k
+XU4 vref_24v v_divided 5V 0 vout_24v LM290x
+C3 vref_24v 0 10p
+.tran 100m
+.lib BZT52C30.lib
+.lib lm290x.lib
+.lib smbj_thermal_05-07-25_LT_encrypted.lib
+.backanno
+.end
