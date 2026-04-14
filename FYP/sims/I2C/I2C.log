@@ -1,0 +1,25 @@
+Circuit: * C:\GitHub\Monash2026\FYP\sims\I2C\I2C.asc
+
+WARNING: Less than two connections to node NC_01.  This node is used by R8.
+WARNING: Less than two connections to node NC_02.  This node is used by R4.
+Instance "m:u1:2": Length shorter than recommended for a level 3 MOSFET.
+Instance "m:u2:2": Length shorter than recommended for a level 3 MOSFET.
+Direct Newton iteration for .op point succeeded.
+
+Date: Sun Apr 12 18:51:50 2026
+Total elapsed time: 0.418 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 28278
+traniter = 28268
+tranpoints = 9959
+accept = 7847
+rejected = 2112
+matrix size = 43
+fillins = 1
+solver = Normal
+Matrix Compiler1: 2.88 KB object code size  0.5/0.3/[0.2]
+Matrix Compiler2: 3.45 KB object code size  0.2/0.3/[0.2]
+
