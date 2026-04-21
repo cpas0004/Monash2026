@@ -169,6 +169,12 @@ class SwitchPort(object):
         self.byte_size = 0  # Current size of the queue in bytes
         self.debug = debug
         self.busy = 0  # Tracks whether a packet is currently being sent
+
+        # Optional: track dropped packets
+        self.dropped_packets = []
+        self.dropped_packets_A = []
+        self.dropped_packets_B = []
+
         self.action = env.process(self.run())
 
     def run(self):
@@ -177,7 +183,8 @@ class SwitchPort(object):
             self.busy = 1
             self.byte_size -= msg.size
             yield self.env.timeout(msg.size * 8.0 / self.rate)
-            self.out.put(msg)
+            if self.out:
+                self.out.put(msg)
             self.busy = 0
             if self.debug:
                 print(msg)
@@ -186,24 +193,23 @@ class SwitchPort(object):
         self.packets_rec += 1
         tmp_byte_count = self.byte_size + pkt.size
 
+        # No queue limit
         if self.qlimit is None:
             self.byte_size = tmp_byte_count
             return self.store.put(pkt)
 
-        if self.limit_bytes and tmp_byte_count >= self.qlimit:
-            self.packets_drop += 1
-            if hasattr(pkt, "src"):
-                if pkt.src == "Source A":
-                    self.packets_drop_A += 1
-                elif pkt.src == "Source B":
-                    self.packets_drop_B += 1
-            return
+        # Check for drop condition
+        drop = False
+        if self.limit_bytes:
+            if tmp_byte_count >= self.qlimit:
+                drop = True
+        else:
+            if len(self.store.items) >= self.qlimit:
+                drop = True
 
-        elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
+        if drop:
             self.packets_drop += 1
-            # if drop:
-            #     self.packets_drop += 1
-            #     self.dropped_packets.append(pkt)
+            self.dropped_packets.append(pkt)
 
             if hasattr(pkt, "src"):
                 if pkt.src == "Source A":
@@ -214,6 +220,7 @@ class SwitchPort(object):
                     self.dropped_packets_B.append(pkt)
             return
 
+        # Accept packet
         self.byte_size = tmp_byte_count
         return self.store.put(pkt)
 
