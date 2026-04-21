@@ -201,9 +201,9 @@ class SwitchPort(object):
 
         elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
             self.packets_drop += 1
-           if drop:
-            self.packets_drop += 1
-            self.dropped_packets.append(pkt)
+            # if drop:
+            #     self.packets_drop += 1
+            #     self.dropped_packets.append(pkt)
 
             if hasattr(pkt, "src"):
                 if pkt.src == "Source A":
