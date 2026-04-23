@@ -8,22 +8,21 @@ WARNING: Less than two connections to node NC_01.  This node is used by R8.
 WARNING: Less than two connections to node NC_02.  This node is used by R4.
 Instance "m:u2:2": Length shorter than recommended for a level 3 MOSFET.
 Direct Newton iteration for .op point succeeded.
-Heightened Def Con from 3.001e-006 to 3.0021e-006
 
-Date: Tue Apr 21 18:42:47 2026
-Total elapsed time: 0.388 seconds.
+Date: Thu Apr 23 09:24:10 2026
+Total elapsed time: 0.311 seconds.
 
 tnom = 27
 temp = 27
 method = modified trap
-totiter = 34715
-traniter = 34705
-tranpoints = 12396
-accept = 9897
-rejected = 2500
+totiter = 34742
+traniter = 34732
+tranpoints = 12382
+accept = 9780
+rejected = 2602
 matrix size = 39
 fillins = 1
 solver = Normal
-Matrix Compiler1: 2.32 KB object code size  0.8/0.4/[0.3]
-Matrix Compiler2: off  [0.4]/0.6/0.5
+Matrix Compiler1: 2.32 KB object code size  0.4/0.2/[0.1]
+Matrix Compiler2: off  [0.2]/0.3/0.2
 
