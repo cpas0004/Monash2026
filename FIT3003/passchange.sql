@@ -1,0 +1,1 @@
+alter user S32528604 IDENTIFIED by "Socks2002";
