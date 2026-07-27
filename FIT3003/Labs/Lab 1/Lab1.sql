@@ -303,7 +303,7 @@ select distinct s.fname, s.lname
 from student s join tutor t
 on s.studentno = t.studentno;
 
--- Select the lecturer(s) whose research area is ‘Network Management’.
+-- Select the lecturer(s) whose research area is 'Network Management'.
 select l.staffno, l.fname, l.lname
 from lecturer l
 where l.researcharea = 'Network Management';
@@ -331,7 +331,7 @@ group by s.subjectcode,
     s.name,
     s.semester;
 
--- List the total number of students in each lab, for each subject, with the tutor’s name.
+-- List the total number of students in each lab, for each subject, with the tutor's name.
 select su.subjectcode, 
     su.name as subject_name, 
     la.labno, la.labday, 
@@ -354,7 +354,7 @@ order by
     su.subjectcode, 
     la.labno;
 
--- Calculate the cost of running all the database labs per week. (Hint: lab duration * tutors’ SALARYPERHOUR)
+-- Calculate the cost of running all the database labs per week. (Hint: lab duration * tutors' SALARYPERHOUR)
 select SUM(la.duration*tu.salaryperhour) as total_cost
 from lab la join tutor tu on la.tutorno = tu.tutorno
 where la.subjectcode in ('CSE21DB', 'CSE31DB', 'CSE41FDB');
