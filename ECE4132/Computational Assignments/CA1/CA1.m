@@ -46,4 +46,13 @@ plot(x, y);
 xlabel("time (s)");
 ylabel("Temp (C)");
 
+%% 
 
+hlevel = 50;
+
+x = fbResponse.time;
+y = fbResponse.data;
+
+plot(x, y);
+xlabel("time (s)");
+ylabel("Temp (C)");
