@@ -1,0 +1,153 @@
+cells:
+  - kind: 2
+    value: "CREATE TABLE SUBJECT2 (\r
+
+      \    UCode CHAR(5) NOT NULL,\r
+
+      \    UTitle VARCHAR2(20) NOT NULL,\r
+
+      \    UCredit NUMBER(2) NOT NULL,\r
+
+      \    PRIMARY KEY (UCode)\r
+
+      );\r
+
+      \r
+
+      INSERT INTO SUBJECT2 (UCode, UTitle, UCredit) VALUES ('IT001', 'Database',
+      5);\r
+
+      INSERT INTO SUBJECT2 (UCode, UTitle, UCredit) VALUES ('IT002', 'Java',
+      5);\r
+
+      INSERT INTO SUBJECT2 (UCode, UTitle, UCredit) VALUES ('IT003', 'SAP',
+      10);\r
+
+      INSERT INTO SUBJECT2 (UCode, UTitle, UCredit) VALUES ('IT004', 'Network',
+      5);\r
+
+      INSERT INTO SUBJECT2 (UCode, UTitle, UCredit) VALUES ('IT005', 'ASP.net',
+      5);\r
+
+      \r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "Create Table STUDENT2\r
+
+      As Select *\r
+
+      From dtaniar.STUDENT2;"
+    languageId: oracle-sql
+  - kind: 2
+    value: DESCRIBE STUDENT2;
+    languageId: oracle-sql
+  - kind: 2
+    value: SELECT * FROM STUDENT2;
+    languageId: oracle-sql
+  - kind: 2
+    value: "INSERT INTO STUDENT2 (SID, SLName, SFName, SGender, SDOB, SCategory)
+      VALUES (10008, 'Miller', 'Larry', 'M', TO_DATE('22-07-1973',
+      'DD-MM-YYYY'), 211);\r
+
+      INSERT INTO STUDENT2 (SID, SLName, SFName, SGender, SDOB, SCategory)
+      VALUES (10009, 'Smith', 'Leonard', 'M', TO_DATE('26-05-1985',
+      'DD-MM-YYYY'), 211);\r
+
+      INSERT INTO STUDENT2 (SID, SLName, SFName, SGender, SDOB, SCategory)
+      VALUES (10010, 'Brown', 'Menson', 'M', TO_DATE('12-07-1983',
+      'DD-MM-YYYY'), 112);\r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE TABLE OFFERING2\r
+
+      AS SELECT *\r
+
+      FROM dtaniar.OFFERING2;\r
+
+      \r
+
+      CREATE TABLE ENROLLMENT2\r
+
+      AS SELECT *\r
+
+      FROM dtaniar.ENROLLMENT2;"
+    languageId: oracle-sql
+  - kind: 2
+    value: ""
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- How many students enrolled in the Database unit offered in Main
+      campus\r
+
+      \r
+
+      SELECT COUNT(*) AS num_stu\r
+
+      FROM ENROLLMENT2 JOIN OFFERING2 ON ENROLLMENT2.OID = OFFERING2.OID\r
+
+      JOIN SUBJECT2 ON OFFERING2.UCode = SUBJECT2.UCode\r
+
+      WHERE SUBJECT2.UTitle = 'Database' AND OFFERING2.OCampus = 'Main';\r
+
+      \r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- What is the total score of students taking the Database unit in Main
+      campus?\r
+
+      \r
+
+      SELECT SUM(ENROLLMENT2.Score) AS total_score\r
+
+      FROM ENROLLMENT2 JOIN OFFERING2 ON ENROLLMENT2.OID = OFFERING2.OID\r
+
+      JOIN SUBJECT2 ON OFFERING2.UCode = SUBJECT2.UCode\r
+
+      WHERE SUBJECT2.UTitle = 'Database' AND OFFERING2.OCampus = 'Main';"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- How many students enrolled in the Java unit offered in Semester 2,
+      2009?\r
+
+      \r
+
+      SELECT COUNT(*) AS num_stu\r
+
+      FROM ENROLLMENT2 JOIN OFFERING2 ON ENROLLMENT2.OID = OFFERING2.OID\r
+
+      JOIN SUBJECT2 ON OFFERING2.UCode = SUBJECT2.UCode\r
+
+      WHERE SUBJECT2.UTitle = 'Java' AND OFFERING2.OSem = 2 AND OFFERING2.OYear
+      = 2009;\r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- What is the total score of students taking the Java unit in Semester
+      2, 2009?\r
+
+      \r
+
+      SELECT SUM(ENROLLMENT2.Score) AS total_score\r
+
+      FROM ENROLLMENT2 JOIN OFFERING2 ON ENROLLMENT2.OID = OFFERING2.OID\r
+
+      JOIN SUBJECT2 ON OFFERING2.UCode = SUBJECT2.UCode\r
+
+      WHERE SUBJECT2.UTitle = 'Java' AND OFFERING2.OSem = 2 AND OFFERING2.OYear
+      = 2009;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT COUNT(*) AS num_HD\r
+
+      FROM ENROLLMENT2 JOIN OFFERING2 ON ENROLLMENT2.OID = OFFERING2.OID\r
+
+      JOIN SUBJECT2 ON OFFERING2.UCode = SUBJECT2.UCode\r
+
+      WHERE SUBJECT2.UTitle = 'SAP' AND ENROLLMENT2.Grade = 'HD' AND
+      OFFERING2.OSem = 1 AND OFFERING2.OYear = 2009;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT * FROM ENROLLMENT2 JOIN OFFERING2 ON ENROLLMENT2.OID =
+      OFFERING2.OID\r
+
+      WHERE OFFERING2.OSem = 1 AND OFFERING2.OYear = 2009;"
+    languageId: oracle-sql
