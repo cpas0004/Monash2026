@@ -151,3 +151,111 @@ cells:
 
       WHERE OFFERING2.OSem = 1 AND OFFERING2.OYear = 2009;"
     languageId: oracle-sql
+  - kind: 2
+    value: CREATE TABLE LocationDIM as SELECT DISTINCT OCampus FROM OFFERING2;
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE TABLE SemesterDIM (\r
+
+      \    SemKey VARCHAR2(10) PRIMARY KEY,\r
+
+      \    OYear  NUMBER(4) NOT NULL,\r
+
+      \    OSem   NUMBER(1) NOT NULL\r
+
+      );"
+    languageId: oracle-sql
+  - kind: 2
+    value: "INSERT INTO SemesterDIM (SemKey, OYear, OSem)\r
+
+      SELECT DISTINCT\r
+
+      \    TO_CHAR(OYear) || '-S' || TO_CHAR(OSem),\r
+
+      \    OYear,\r
+
+      \    OSem\r
+
+      FROM OFFERING2;"
+    languageId: oracle-sql
+  - kind: 2
+    value: CREATE TABLE GradeDIM as SELECT DISTINCT Grade FROM ENROLLMENT2;
+    languageId: oracle-sql
+  - kind: 2
+    value: SELECT * FROM GradeDIM;
+    languageId: oracle-sql
+  - kind: 2
+    value: CREATE TABLE UnitDIM as SELECT DISTINCT UCode, UTitle FROM SUBJECT2;
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE TABLE ENROLMENTFACT AS\r
+
+      SELECT \r
+
+      \    O.OCampus, \r
+
+      \    TO_CHAR(O.OYear) || '-S' || TO_CHAR(O.OSem) AS SemKey, \r
+
+      \    S.UCode, \r
+
+      \    E.Grade, \r
+
+      \    COUNT(DISTINCT E.SID) AS num_stu, \r
+
+      \    SUM(E.Score) AS total_score \r
+
+      FROM ENROLLMENT2 E, OFFERING2 O, SUBJECT2 S\r
+
+      WHERE E.OID = O.OID AND O.UCode = S.UCode\r
+
+      GROUP BY O.OCampus, TO_CHAR(O.OYear) || '-S' || TO_CHAR(O.OSem), S.UCode,
+      E.Grade"
+    languageId: oracle-sql
+  - kind: 2
+    value: SELECT * FROM ENROLMENTFACT;
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Use the star schema that you have created, display the average score
+      of each unit offered in 2009\r
+
+      \r
+
+      SELECT S.UCode, S.UTitle, SUM(EF.total_score)/SUM(EF.num_stu) AS
+      avg_score\r
+
+      FROM ENROLMENTFACT EF JOIN UnitDIM S ON EF.UCode = S.Ucode\r
+
+      JOIN SemesterDIM SD on EF.SemKey = SD.SemKey\r
+
+      WHERE SD.OYear = 2009\r
+
+      GROUP BY S.UCode, S.UTitle"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Use the star schema that you have created, display the average score
+      of each unit offered in main campus.\r
+
+      \r
+
+      SELECT S.UCode, S.UTitle, SUM(EF.total_score)/SUM(EF.num_stu) AS
+      avg_score\r
+
+      FROM ENROLMENTFACT EF JOIN UnitDIM S ON EF.UCode = S.Ucode\r
+
+      JOIN LocationDIM LD on EF.OCampus = LD.Ocampus\r
+
+      WHERE LD.OCampus = 'Main'\r
+
+      GROUP BY S.UCode, S.UTitle"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT SUM(EF.total_score)/SUM(EF.num_stu) as avg_score\r
+
+      FROM ENROLMENTFACT EF JOIN UnitDIM UD on EF.UCode = UD.UCode\r
+
+      JOIN GradeDIM GD on EF.Grade = GD.Grade\r
+
+      WHERE UD.UTitle = 'Database' AND GD.Grade = 'N'\r
+
+      GROUP BY UD.UTitle, GD.Grade\r\n"
+    languageId: oracle-sql

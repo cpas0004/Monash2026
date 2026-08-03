@@ -1,0 +1,421 @@
+cells:
+  - kind: 2
+    value: "-- Agent Dimension\r
+
+      create table AgentDim as\r
+
+      select * from opdb.Agent;\r
+
+      \r
+
+      select * from AgentDim;\r
+
+      \r
+
+      --Country Dimension\r
+
+      create table CountryDim as \r
+
+      select distinct Country\r
+
+      from opdb.Student;\r
+
+      \r
+
+      select * from CountryDim;\r
+
+      \r
+
+      --Course Dimension\r
+
+      create table CourseDim as\r
+
+      select CourseCode, CourseName, Duration, CourseLevel\r
+
+      from opdb.Course;\r
+
+      \r
+
+      select * from CourseDim;\r
+
+      \r
+
+      --Year Dimension\r
+
+      create table YearDim as\r
+
+      select distinct EnrolmentYear\r
+
+      from opdb.Enrolment;\r
+
+      \r
+
+      select * from YearDim;\r
+
+      \r
+
+      --Fact Table\r
+
+      create table CollegeFact as\r
+
+      select\r
+
+      \  S.Country,\r
+
+      \  E.AgentNo,\r
+
+      \  E.CourseCode,\r
+
+      \  E.EnrolmentYear,\r
+
+      \  count(p.PaymentNo) as Number_of_payments,\r
+
+      \  sum(P.Amount) as Total_Income\r
+
+      from opdb.Student S, opdb.Enrolment E, opdb.Payment P\r
+
+      where E.EnrolmentNo = P.EnrolmentNo\r
+
+      \  and E.StudentID = S.StudentID\r
+
+      group by\r
+
+      \  S.Country,\r
+
+      \  E.AgentNo,\r
+
+      \  E.CourseCode,\r
+
+      \  E.EnrolmentYear;\r
+
+      \  \r
+
+      select * from CollegeFact;\r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT SUM(total_income) as aus_income\r
+
+      FROM COLLEGEFACT\r
+
+      WHERE COUNTRY = 'Australia';"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT CD.CourseCode, CD.CourseName, SUM(CF.total_income) as
+      course_income\r
+
+      FROM COLLEGEFACT CF JOIN CourseDim CD on CF.CourseCode = CD.CourseCode\r
+
+      GROUP BY CD.CourseCode, CD.CourseName"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT SUM(CF.total_income) as income\r
+
+      FROM COLLEGEFACT CF\r
+
+      WHERE CF.CourseCode = 'C6003' AND CF.EnrolmentYear = 2019;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "SELECT SUM(CF.total_income) as income\r
+
+      FROM COLLEGEFACT CF JOIN AgentDim AD on CF.AgentNo = AD.AgentNo\r
+
+      WHERE AD.AgentName = 'New Star Agent'"
+    languageId: oracle-sql
+  - kind: 2
+    value: "/*\r
+
+      \  drop table ProdCategoryDim;\r
+
+      \  drop table BranchDim;\r
+
+      \  drop table TimeDim;\r
+
+      \  drop table TempFact;\r
+
+      \  drop table SalesFact;\r
+
+      */\r
+
+      \r
+
+      -- Prodcategory Dimension\r
+
+      create table ProdCategoryDim as\r
+
+      select * from opdb.Category;\r
+
+      \r
+
+      select * from ProdCategoryDim;\r
+
+      \r
+
+      -- Branch Dimension\r
+
+      create table BranchDim as\r
+
+      select * from opdb.Branch;\r
+
+      \r
+
+      select * from BranchDim;\r
+
+      \r
+
+      --Time Dimension\r
+
+      create table TimeDim\r
+
+      (\r
+
+      \  Quarter number(1),\r
+
+      \  Description varchar2(20)\r
+
+      );\r
+
+      \r
+
+      insert into TimeDim values (1, 'Jan-Mar');\r
+
+      insert into TimeDim values (2, 'Apr-Jun');\r
+
+      insert into TimeDim values (3, 'Jul-Sep');\r
+
+      insert into TimeDim values (4, 'Oct-Dec');\r
+
+      \r
+
+      select * from TimeDim;\r
+
+      \r
+
+      -- TempFact Table\r
+
+      create table TempFact as\r
+
+      select S.SalesDate, B.BranchID, C.CategoryID, S.TotalPrice\r
+
+      from opdb.Branch B, opdb.Sales S, opdb.Product P, opdb.Category C\r
+
+      where B.BranchID = S.BranchID\r
+
+      and S.ProductNo = P.ProductNo\r
+
+      and P.CategoryID = C.CategoryID;\r
+
+      \r
+
+      alter table TempFact\r
+
+      add (Quarter number(1));\r
+
+      \r
+
+      update TempFact\r
+
+      set Quarter = 1\r
+
+      where to_char(SalesDate, 'MM') >= '01'\r
+
+      and to_char(SalesDate, 'MM') <= '03';\r
+
+      \r
+
+      update TempFact\r
+
+      set Quarter = 2\r
+
+      where to_char(SalesDate, 'MM') >= '04'\r
+
+      and to_char(SalesDate, 'MM') <= '06';\r
+
+      \r
+
+      update TempFact\r
+
+      set Quarter = 3\r
+
+      where to_char(SalesDate, 'MM') >= '07'\r
+
+      and to_char(SalesDate, 'MM') <= '09';\r
+
+      \r
+
+      update TempFact\r
+
+      set Quarter = 4\r
+
+      where Quarter is null;\r
+
+      \r
+
+      select * from TempFact;\r
+
+      \r
+
+      -- SalesFact Table\r
+
+      create table SalesFact as\r
+
+      select Quarter, BranchID, CategoryID,\r
+
+      sum(TotalPrice) as Total_Sales\r
+
+      from TempFact\r
+
+      group by Quarter, BranchID, CategoryID;\r
+
+      \r
+
+      select * from SalesFact;\r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Show the total sales in different quarters.\r
+
+      \r
+
+      SELECT QUARTER, SUM(TOTAL_SALES) as total_sales\r
+
+      FROM SALESFACT\r
+
+      GROUP BY QUARTER"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Show the total sales for different branches and product categories.\r
+
+      \r
+
+      SELECT BRANCHID, CATEGORYID, SUM(TOTAL_SALES) as total_sales\r
+
+      FROM SALESFACT\r
+
+      GROUP BY BRANCHID, CATEGORYID"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Show the total sales of Kitchen supplies in Quarter 1\r
+
+      \r
+
+      SELECT SUM(SF.TOTAL_SALES) as total_sales\r
+
+      FROM SALESFACT SF JOIN ProdCategoryDIM PD on SF.CATEGORYID =
+      PD.CATEGORYID\r
+
+      WHERE PD.CATEGORYDESC = 'Kitchen supplies' AND SF.QUARTER = 1;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "drop table ProdCategoryDim;\r
+
+      drop table BranchDim;\r
+
+      drop table TimeDim;\r
+
+      drop table TempFact;\r
+
+      drop table SalesFact;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE TABLE ProdCategoryDIM AS\r
+
+      SELECT * FROM OPDB.Category;\r
+
+      \r
+
+      CREATE TABLE BranchDIM AS\r
+
+      SELECT * FROM OPDB.Branch;\r
+
+      \r
+
+      CREATE TABLE TimeDIM (Month NUMBER(2), MonthDesc VARCHAR2(20));\r
+
+      \r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "INSERT INTO TimeDIM VALUES (1, 'January');\r
+
+      INSERT INTO TimeDIM VALUES (2, 'February');\r
+
+      INSERT INTO TimeDIM VALUES (3, 'March');\r
+
+      INSERT INTO TimeDIM VALUES (4, 'April');\r
+
+      INSERT INTO TimeDIM VALUES (5, 'May');\r
+
+      INSERT INTO TimeDIM VALUES (6, 'June');\r
+
+      INSERT INTO TimeDIM VALUES (7, 'July');\r
+
+      INSERT INTO TimeDIM VALUES (8, 'August');\r
+
+      INSERT INTO TimeDIM VALUES (9, 'September');\r
+
+      INSERT INTO TimeDIM VALUES (10, 'October');\r
+
+      INSERT INTO TimeDIM VALUES (11, 'November');\r
+
+      INSERT INTO TimeDIM VALUES (12, 'December');"
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE TABLE TempSalesFact AS\r
+
+      SELECT C.CategoryID, B.BranchID, S.SalesDate, S.TotalPrice\r
+
+      FROM opdb.Sales S JOIN opdb.Branch B on S.BranchID = B.BranchID\r
+
+      JOIN opdb.Product P on S.ProductNo = P.ProductNo\r
+
+      JOIN opdb.Category C on P.CategoryID = C.CategoryID\r\n"
+    languageId: oracle-sql
+  - kind: 2
+    value: "ALTER TABLE TempSalesFact\r
+
+      ADD (Month NUMBER(2));"
+    languageId: oracle-sql
+  - kind: 2
+    value: SELECT * FROM TempSalesFact;
+    languageId: oracle-sql
+  - kind: 2
+    value: UPDATE TempSalesFact SET Month = TO_NUMBER(TO_CHAR(SalesDate, 'MM'));
+    languageId: oracle-sql
+  - kind: 2
+    value: SELECT * FROM TempSalesFact;
+    languageId: oracle-sql
+  - kind: 2
+    value: "CREATE TABLE SalesFact AS\r
+
+      SELECT Month, BranchID, CategoryID, SUM(TotalPrice) as Total_Sales\r
+
+      FROM TempSalesFact\r
+
+      GROUP BY Month, BranchID, CategoryID;\r
+
+      \r
+
+      SELECT * FROM SalesFact;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Show the total sales by different months.\r
+
+      \r
+
+      SELECT TD.MonthDesc, SUM(total_sales) as total_sales\r
+
+      FROM SalesFact SF JOIN TimeDim TD on SF.Month = TD.Month\r
+
+      GROUP BY TD.MonthDesc;"
+    languageId: oracle-sql
+  - kind: 2
+    value: "-- Show the total sales by different branches and product categories.\r
+
+      \r
+
+      SELECT SF.BranchId, PD.CategoryDesc, SUM(SF.total_sales) as total_sales\r
+
+      FROM SalesFact SF, ProdCategoryDim PD\r
+
+      WHERE SF.CategoryID = PD.CategoryID\r
+
+      GROUP BY SF.BranchId, PD.CategoryDesc;"
+    languageId: oracle-sql
