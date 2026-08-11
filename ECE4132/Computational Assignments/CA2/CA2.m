@@ -1,5 +1,5 @@
 %%
-clear all; clc;
+clear all; clc; close all;
 
 %% 
 load("Tsys.mat");
@@ -15,11 +15,76 @@ plot(Tsys_time, Tsys_data, usys_time, usys_data);
 xlabel("Time");
 ylabel("Temp");
 
-init_temp = Tsys_data(1);
+T_room = Tsys_data(1);
 
-fprintf("Initial temp (or T_room) is: %f\n", init_temp);
+fprintf("Initial temp (or T_room) is: %f\n", T_room);
 fprintf("Temp remain for approx 14s before rising\n");
 fprintf("Temp steady state value is approx 49.5\n");
 fprintf("Steady state of temp DEVIATION (D(t)=T(t)-Troom) = 27\n");
 fprintf("Takes approx 109s to for temp DEVIATION to reach 63%% (17.01) of it's steady state (at total temp 39.51)\n");
-fprintf("109-14 = 95s from delayed rise start to 63%%");
+fprintf("109-14 = 95s from delayed rise start to 63%%\n");
+
+%%
+
+% optimising for the no delay first order system
+cost = @(theta) sum(   (Tsys_data-T_room - step(50*tf(theta(2), [theta(1), 1]), Tsys_time)    ).^2);
+theta0 = rand(1, 2);
+
+thetaOpt = fminsearch(cost, theta0);
+
+K1 = thetaOpt(2)/thetaOpt(1)
+a1 = 1/thetaOpt(1)
+
+hold on
+% plot(Tsys_time, step(50*tf(thetaOpt(2), [thetaOpt(1), 1]), Tsys_time)+T_room);
+plot(Tsys_time, step(50*tf(K1, [1, a1]), Tsys_time) + T_room);
+
+
+%%
+
+% optimising for the delayed first order system
+% now we have a time delay, which we can specify in the cost function
+
+cost = @(theta) sum((Tsys_data-T_room - step(50 * tf(theta(2), [theta(1), 1], 'InputDelay', theta(3)), Tsys_time)).^2);
+theta0 = rand(1, 3);
+
+% we need some conditions because the input delay values must be > 0
+% lower bound
+lb = [-inf, -inf, 0]; % (theta1 and 2 can be anything, but theta 3 > 0)
+ub = [inf, inf, inf];
+
+thetaOpt = fmincon(cost, theta0, [], [], [], [], lb, ub);
+
+K2 = thetaOpt(2)/thetaOpt(1)
+a2 = 1/thetaOpt(1)
+tau = thetaOpt(3)
+
+% plotting the original system data
+plot(Tsys_time, Tsys_data, usys_time, usys_data);
+xlabel("Time");
+ylabel("Temp");
+
+hold on
+plot(Tsys_time, step(50 * tf(K2, [1, a2], "InputDelay", tau), Tsys_time) + T_room);
+
+
+%% Part 2.2 Model EValuation
+
+t_TClab = TClab.time;
+t_Tfo = Tfo.time;
+t_Tfod = Tfod.time;
+
+y_TClab = TClab.data;
+y_Tfo = Tfo.data;
+y_Tfod = Tfod.data;
+
+figure(1);
+hold on;
+plot(t_TClab, y_TClab);
+plot(t_Tfo, y_Tfo);
+plot(t_Tfod, y_Tfod);
+legend("TClab", "Tfo", "Tfod");
+xlabel("Time");
+ylabel("Temp");
+
+
