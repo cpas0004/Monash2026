@@ -23,20 +23,24 @@ function mse = foCost(a1,K1,Troom1,usys,Tsys)
 % for "tf" to find out how to do this!
 
 % uncomment and replace the ... with your code.
-% sysfo = tf(...);
+sysfo = tf(K1, [1, a1]);
 
 % Simulate the first order differential equation for the temperature deviations D 
 % (equation 2 in the lab notes) using the MATLAB function "lsim" and the input usys.
-Dfo = lsim(sysfo,usys.data,usys.time);
+Dfo = lsim(sysfo, usys.data, usys.time);
 
 % Convert temperature deviations predicted by the first-order model to
 % temperatures:
 
 % uncomment and replace the ... with your code.
-% Tfo = ...;
+Tfo = Dfo + Troom1;
 
 % compute the mean-squared error between Tsys.data and Tfo.
 
 % uncomment and replace the ... with your code.
-% mse = ...;
+length(usys.time)
+length(Tfo)
+length(Tsys.data)
+N = length(Tfo);
+mse = 1/N * sum((Tsys.data - Tfo).^2);
 

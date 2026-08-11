@@ -87,4 +87,12 @@ legend("TClab", "Tfo", "Tfod");
 xlabel("Time");
 ylabel("Temp");
 
+%% Part 3.1
+
+% Q11
+focost = foCost(0.02, 0.002, 20, usys, Tsys)
+% Q12
+fodcost = fodCost(0.02, 0.002, 10, 20, usys, Tsys)
+
+%% Part 3.2
 

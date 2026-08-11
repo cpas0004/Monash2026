@@ -24,7 +24,7 @@ function mse = fodCost(a2,K2,tau,Troom2,usys,Tsys)
 % for "tf" to find out how to do this, particularly how to include a delay!
 
 % uncomment and replace the ... with your code.
-% sysfod = tf(...);
+sysfod = tf(K2, [1, a2], "InputDelay", tau);
 
 % Simulate the first order with delay differential equation for the temperature deviations D 
 % (equation 3 in the lab notes) using the MATLAB function "lsim" and the input usys.
@@ -34,12 +34,13 @@ Dfod = lsim(sysfod,usys.data,usys.time);
 % temperatures:
 
 % uncomment and replace the ... with your code.
-% Tfod = ...;
+Tfod = Dfod + Troom2;
 
 % compute the mean-squared error between Tsys.data and Tfod.
 
 % uncomment and replace the ... with your code.
-% mse = ...;
+N = length(Tfod);
+mse = 1/N * sum((Tsys.data - Tfod).^2);
 
 
 
