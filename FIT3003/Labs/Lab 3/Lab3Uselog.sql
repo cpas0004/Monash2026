@@ -246,3 +246,4 @@ select f.semID, f.major_code, m.major_name, sum(f.total_usage) as total_usage
 from fact_uselog2 f join majorDIM m on f.major_code = m.major_code
 group by f.semID, f.major_code, m.major_name;
 
+commit;
