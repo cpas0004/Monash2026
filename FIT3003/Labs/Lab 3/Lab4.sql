@@ -268,4 +268,76 @@ from storedim2 s, bridgetabledim2 b, tripdim2 tr, truckfact2 tf
 where s.storeid = b.storeid and tr.tripid = b.tripid and tr.tripid = tf.tripid
 group by s.storeid, s.storename;
 
--- 
+-- solution model 3
+
+create table truckdim3 as
+select * from truck;
+
+create table bridgetabledim3 as
+select * from destination;
+
+create table storedim3 as
+select * from store;
+
+create table tripseasondim3 (
+    SeasonID number primary key,
+    Seasonperiod varchar2(20) Not Null
+);
+
+insert into tripseasondim3 values (1, 'Summer');
+insert into tripseasondim3 values (2, 'Autumn');
+insert into tripseasondim3 values (3, 'Winter');
+insert into tripseasondim3 values (4, 'Spring');
+
+-- making the trip dimension
+
+-- from before, with weight factor
+select t.tripid, t.tripdate, t.totalkm, 1/count(*) as weight_factor
+from trip t join destination d on t.tripid = d.tripid
+group by t.tripid, t.tripdate, t.totalkm;
+
+-- adding the store list to the trip dimension
+select t.tripid, t.tripdate, t.totalkm, 1/count(*) as weight_factor, LISTAGG (d.storeid, '_') within group (order by d.storeid) as StoreGroupList
+from trip t join destination d on t.tripid = d.tripid
+group by t.tripid, t.tripdate, t.totalkm;
+
+create table tripdim3 as
+select t.tripid, t.tripdate, t.totalkm, 1/count(*) as weight_factor, LISTAGG (d.storeid, '_') within group (order by d.storeid) as StoreGroupList
+from trip t join destination d on t.tripid = d.tripid
+group by t.tripid, t.tripdate, t.totalkm;
+
+-- creating the temp fact table
+drop table temptruckfact3;
+
+create table temptruckfact3 as
+select t.tripid, t.tripdate, tr.truckid, t.totalkm*tr.costperkm as total_delivery_cost
+from trip t, truck tr
+where t.truckid = tr.truckid;
+
+alter table temptruckfact3 add (seasonid number);
+
+update temptruckfact3
+set seasonid = 1
+where to_char(tripdate, 'MMDD') >= '1201'
+and to_char(tripdate, 'MMDD') <= '0228';
+
+update temptruckfact3
+set seasonid = 2
+where to_char(tripdate, 'MMDD') >= '0301'
+and to_char(tripdate, 'MMDD') <= '0531';
+
+update temptruckfact3
+set seasonid = 3
+where to_char(tripdate, 'MMDD') >= '0601'
+and to_char(tripdate, 'MMDD') <= '0831';
+
+update temptruckfact3
+set seasonid = 4
+where to_char(tripdate, 'MMDD') >= '0901'
+and to_char(tripdate, 'MMDD') <= '1130';
+
+create table truckfact3 as
+select tf.truckid, tf.tripid, tf.seasonid, tf.total_delivery_cost
+from temptruckfact3 tf;
+
+select * from temptruckfact3;
