@@ -23,4 +23,16 @@ B = K - tau*K*s/2;
 
 rlocus(B/A);
 grid on;
-title(sprintf('Root locus for k_p = %.2f', kp))
+title(sprintf('Root locus for k_p = %.2f', kp));
+
+%% Parameters for part 3
+
+kp = 8.75;
+ki = 0.1;
+ref = 60 - y_room;
+
+%% 
+stepinfo(Dout.Data, Dout.time)
+
+%%
+plot(Dout.time, ref, Dout.time, Dout.Data);
