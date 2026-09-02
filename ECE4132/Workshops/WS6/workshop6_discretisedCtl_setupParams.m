@@ -1,0 +1,52 @@
+% setup model parameters
+clear;
+close all;
+
+% parameters for DC motor model (from
+% http://ctms.engin.umich.edu/CTMS/index.php?example=MotorPosition&section=SystemModeling)
+J = 3.2284E-6;
+b = 3.5077E-6;
+K = 0.0274;
+R = 4;
+L = 2.75E-6;
+s = tf('s');
+% transfer function with output angular velocity
+S_motor = K/(((J*s+b)*(L*s+R)+K^2));
+% transfer function with output angular position
+P_motor = S_motor/s;
+
+% transfer function simplified
+S_simple = (K/R)/(J*s+b+(K^2)/R);
+P_simple = S_simple/s;
+
+%% CT PID controller - setup model parameters
+kp = 1; ki = 0.1; kd = 0.2; Tf = 5*1e-4;
+C = kd*s/(Tf*s+1) + kp + ki/s; % implementation of PID controller with derivative filtering
+
+% placeholder dummy data for DT controller so we can run CT controller only
+Ts = 1e-4;
+Cd = tf(0);
+
+%% Discretised controller: emulation design method (%% if line 31 is causing issues, don't run this section; instead, Run model in Simulink directly)
+out = sim('workshop6_DCMotor_discretisedCtl.slx'); % update file depending on version opened in Simulink
+%%
+% choose an appropriate sampling period
+% CT response is exposed to this MATLAB script as object 
+% 'out.thetact.Data' and 'out.thetact.Time'
+outStepInfo = stepinfo(out.thetact.Data, out.thetact.Time, 1);
+Trise = outStepInfo.RiseTime;
+N = 50; % try N=2, N=1, N=0.5
+Ts = Trise/N;
+
+% Bilinear filtered derivative PID controller approximation
+Cd = c2d(C,Ts,'tustin');
+%% if line 31 is causing issues, don't run this section; instead, Run model in Simulink directly
+outDt = sim('workshop6_DCMotor_discretisedCtl.slx'); % update file depending on version opened in Simulink
+%% Investigate poles of controllers
+[zc,pc,kc] = zpkdata(C);
+[z,p,k] = zpkdata(Cd);
+fprintf('Poles of continuous-time controller:\n');
+pc{1}
+fprintf('Poles of discrete-time controller:\n');
+p{1}
+
