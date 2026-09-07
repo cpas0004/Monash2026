@@ -1,0 +1,7 @@
+%%% Model Setup for Project for ECE4132
+clc;
+
+% Inputs: 
+Ref = 200;
+alpha = 0.01;
+kappa = 0.01;
