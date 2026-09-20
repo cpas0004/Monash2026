@@ -1,0 +1,3 @@
+-- CREATING DIMS FOR STAR SCHEMA
+
+-- BookingMonthDIM
