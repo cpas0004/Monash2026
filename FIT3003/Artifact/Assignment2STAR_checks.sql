@@ -192,7 +192,7 @@ FROM Dual;
 /* Both booking mismatch counts must be 0. */
 WITH SourceAgg AS
 (
-    SELECT TO_NUMBER(TO_CHAR(b.BookingDate, 'YYYYMM')) AS BookingMonthID,
+    SELECT TO_CHAR(b.BookingDate, 'YYYYMM') AS BookingMonthID,
            p.FacultyID,
            CASE
                WHEN p.PassengerAge BETWEEN 18 AND 35 THEN 1
@@ -209,7 +209,7 @@ WITH SourceAgg AS
     JOIN CarBodyDIM cb
       ON cb.CarBodyType = c.CarBodyType
      AND cb.NumSeats = c.NumSeats
-    GROUP BY TO_NUMBER(TO_CHAR(b.BookingDate, 'YYYYMM')),
+    GROUP BY TO_CHAR(b.BookingDate, 'YYYYMM'),
              p.FacultyID,
              CASE
                  WHEN p.PassengerAge BETWEEN 18 AND 35 THEN 1
