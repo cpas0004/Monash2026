@@ -1,0 +1,171 @@
+CREATE TABLE MODEL9 AS SELECT * FROM DW.MODEL;
+CREATE TABLE PILOT9 AS SELECT * FROM DW.PILOT;
+CREATE TABLE TIME9 AS SELECT * FROM DW.TIME;
+CREATE TABLE CHARTERFACT AS SELECT * FROM DW.CHARTER_FACT;
+
+SELECT * FROM TIME9;
+SELECT * FROM PILOT9;
+SELECT * FROM MODEL9;
+SELECT * FROM CHARTERFACT;
+
+-- What is the total fuel used from Oct to Dec 1995 by commercial pilots and airplane model C-90A. 
+-- Sort the results by the month.
+SELECT TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE, sum(TOT_FUEL) AS "Total Fuel"
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE TIME_YEAR = 1995 AND TIME_MONTH >= 10 AND TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE
+ORDER BY TIME_MONTH;
+
+
+-- Using cube, what is the total fuel used from Oct to Dec 1995 by commercial pilots and 
+-- airplane model C-90A. Sort the results by the month. How many rows of records do you get?
+SELECT TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE, SUM(TOT_FUEL) AS "Total Fuel"
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE TIME_YEAR = 1995 AND TIME_MONTH >= 10 AND TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY CUBE(TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE)
+ORDER BY TIME_MONTH;
+
+-- Redo question C.2 using Grouping. Notes that “1” and “0” in the TIME, PILOT,  
+-- and MODEL indicate that they are aggregate values and real values respectively.
+SELECT T.TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE, SUM(TOT_FUEL) AS "Total Fuel",
+GROUPING(T.TIME_MONTH) AS MONTH, GROUPING(P.PIL_LICENSE) AS LICENSE, GROUPING(M.MOD_CODE) AS MODEL
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE T.TIME_YEAR = 1995 AND T.TIME_MONTH >= 10 AND T.TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY CUBE(T.TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE)
+ORDER BY T.TIME_MONTH;
+
+-- As like question C.3 above, but instead of using “0” and “1”, it displays “All  Periods”, 
+-- “All Pilots” and “All Models” instead. (Hints: Use DECODE).
+SELECT 
+DECODE(GROUPING(T.TIME_MONTH), 1, 'All Periods', T.TIME_MONTH) AS MONTH,
+DECODE(GROUPING(P.PIL_LICENSE), 1, 'All Pilots', P.PIL_LICENSE) AS PILOT, 
+DECODE(GROUPING(M.MOD_CODE), 1, 'All Models', M.MOD_CODE) AS MODEL, 
+SUM(TOT_FUEL) AS "Total Fuel"
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE T.TIME_YEAR = 1995 AND T.TIME_MONTH >= 10 AND T.TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY CUBE(T.TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE)
+ORDER BY T.TIME_MONTH;
+
+-- Following the results in question C.4, since there is only one aircraft model in the  
+-- query results (e.g. C-90A), it seems that the “All Models” are redundant. Now, we  want 
+-- to remove them from the report, as there is no point displaying “All Models”  when there 
+-- is only one model (Hints: Use Partial CUBE).
+SELECT 
+DECODE(GROUPING(T.TIME_MONTH), 1, 'All Periods', T.TIME_MONTH) AS MONTH,
+DECODE(GROUPING(P.PIL_LICENSE), 1, 'All Pilots', P.PIL_LICENSE) AS PILOT, 
+DECODE(GROUPING(M.MOD_CODE), 1, 'All Models', M.MOD_CODE) AS MODEL, 
+SUM(TOT_FUEL) AS "Total Fuel"
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE T.TIME_YEAR = 1995 AND T.TIME_MONTH >= 10 AND T.TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY M.MOD_CODE, CUBE(T.TIME_MONTH, P.PIL_LICENSE)
+ORDER BY T.TIME_MONTH;
+
+-- Using rollup with decode, what is the total fuel used from Oct to Dec 1995 by  
+-- commercial pilots and airplane model C-90A. Sort the results by the month. 
+-- How  many rows of records do you get?
+SELECT 
+DECODE(GROUPING(T.TIME_MONTH), 1, 'All Periods', T.TIME_MONTH) AS MONTH,
+DECODE(GROUPING(P.PIL_LICENSE), 1, 'All Pilots', P.PIL_LICENSE) AS PILOT, 
+DECODE(GROUPING(M.MOD_CODE), 1, 'All Models', M.MOD_CODE) AS MODEL, 
+SUM(TOT_FUEL) AS "Total Fuel"
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE T.TIME_YEAR = 1995 AND T.TIME_MONTH >= 10 AND T.TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY ROLLUP(T.TIME_MONTH, P.PIL_LICENSE, M.MOD_CODE)
+ORDER BY T.TIME_MONTH;
+
+-- Modify C.6 to use Partial Roll up (exclude “All Models” from the rollup)
+SELECT 
+DECODE(GROUPING(T.TIME_MONTH), 1, 'All Periods', T.TIME_MONTH) AS MONTH,
+DECODE(GROUPING(P.PIL_LICENSE), 1, 'All Pilots', P.PIL_LICENSE) AS PILOT, 
+DECODE(GROUPING(M.MOD_CODE), 1, 'All Models', M.MOD_CODE) AS MODEL, 
+SUM(TOT_FUEL) AS "Total Fuel"
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+JOIN PILOT9 P ON C.EMP_NUM = P.EMP_NUM
+JOIN MODEL9 M ON C.MOD_CODE = M.MOD_CODE
+WHERE T.TIME_YEAR = 1995 AND T.TIME_MONTH >= 10 AND T.TIME_MONTH <= 12
+AND P.PIL_LICENSE = 'COM' AND M.MOD_CODE = 'C-90A'
+GROUP BY M.MOD_CODE, ROLLUP(T.TIME_MONTH, P.PIL_LICENSE)
+ORDER BY T.TIME_MONTH;
+
+----------------------------------------------------------
+
+SELECT time_year, time_month,  
+RANK() OVER (ORDER BY time_year, TO_NUMBER(time_month)) AS time_rank  FROM dw.time;
+
+-- Display the row number of total charter hours used by each aircraft model in year  
+-- 1996 (Hints: Use ROW_NUMBER() Over)
+SELECT C.MOD_CODE, T.TIME_ID, SUM(TOT_CHAR_HOURS) AS TOTAL_HOURS, 
+ROW_NUMBER() OVER (ORDER BY SUM(TOT_CHAR_HOURS)) AS ROW_NUM
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+WHERE T.TIME_YEAR = '1996'
+GROUP BY C.MOD_CODE, T.TIME_ID;
+
+
+-- Display the ranking of total charter hours used by each aircraft model in year  
+-- 1996(Hints: Use Dense_Rank() Over)
+SELECT C.MOD_CODE, T.TIME_ID, SUM(TOT_CHAR_HOURS) AS TOTAL_HOURS, 
+DENSE_RANK() OVER (ORDER BY SUM(TOT_CHAR_HOURS)) AS ROW_NUM
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+WHERE T.TIME_YEAR = '1996'
+GROUP BY C.MOD_CODE, T.TIME_ID;
+
+-- Display the ranking of total charter hours used by each aircraft model in year  
+-- 1996 (Hints: Use Rank() Over)
+SELECT C.MOD_CODE, T.TIME_ID, SUM(TOT_CHAR_HOURS) AS TOTAL_HOURS, 
+RANK() OVER (ORDER BY SUM(TOT_CHAR_HOURS)) AS ROW_NUM
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+WHERE T.TIME_YEAR = '1996'
+GROUP BY C.MOD_CODE, T.TIME_ID;
+
+-- Using the Percent_Rank() function (nested within a sub query), display the  
+-- time periods which had revenue in the top 10% of the months.
+SELECT *
+FROM (
+SELECT TIME_ID, SUM(REVENUE) AS TOTAL_REVENUE, PERCENT_RANK() OVER (ORDER BY SUM(REVENUE)) AS PERCENT_RANK
+FROM CHARTERFACT
+GROUP BY TIME_ID
+ORDER BY PERCENT_RANK DESC )
+WHERE PERCENT_RANK > 0.9;
+
+--------------------------------------------------
+
+-- Use the cumulative aggregate to show the following results. We only need to  
+-- show 1995 revenues (Hints: Since we only display 1995 data, there is no  PARTITION).
+SELECT T.TIME_ID, SUM(REVENUE) AS REVENUE, SUM(SUM(REVENUE)) OVER (ORDER BY T.TIME_ID ROWS UNBOUNDED PRECEDING) AS CUMALITIVE
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+WHERE T.TIME_YEAR = '1995'
+GROUP BY T.TIME_ID;
+
+-- Redo question C.1 above, instead of using cumulative aggregate, use moving  
+-- aggregate to show the following results moving aggregate of 3 monthly. (Hints:  Use ROWS 2 PRECEDING). 
+SELECT T.TIME_ID, SUM(REVENUE) AS REVENUE, ROUND(AVG(SUM(REVENUE)) OVER (ORDER BY T.TIME_ID ROWS 2 PRECEDING), 2) AS CUMALITIVE
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+WHERE T.TIME_YEAR = '1995'
+GROUP BY T.TIME_ID;
+
+-- Display the cumulative total fuel used based on the year, and another cumulative  
+-- total used for each airplane model.
+SELECT T.TIME_YEAR, C.MOD_CODE, SUM(TOT_FUEL) AS TOTAL_FUEL,
+SUM(SUM(TOT_FUEL)) OVER (PARTITION BY T.TIME_YEAR ORDER BY T.TIME_YEAR ROWS UNBOUNDED PRECEDING) AS CUM_FUEL_YEAR,
+SUM(SUM(TOT_FUEL)) OVER (PARTITION BY C.MOD_CODE ORDER BY C.MOD_CODE ROWS UNBOUNDED PRECEDING) AS CUM_FUEL_MODEL
+FROM CHARTERFACT C JOIN TIME9 T ON C.TIME_ID = T.TIME_ID
+GROUP BY T.TIME_YEAR, C.MOD_CODE
+ORDER BY T.TIME_YEAR, C.MOD_CODE;

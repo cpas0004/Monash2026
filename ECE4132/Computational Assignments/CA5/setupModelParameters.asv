@@ -14,29 +14,13 @@ close all;
     c = 0.1; % coefficient of friction for cart
     
 % define matrices of the linearized system here:
-A = inv([1 0 0 0; 0 1 0 0; 0 0 M+m -m*l; 0 0 -m*l J+m*l^2])*[0 0 1 0; 0 0 0 1; 0 0 -c 0; 0 m*g*l 0 -gamma];
-B = inv([1 0 0 0; 0 1 0 0; 0 0 M+m -m*l; 0 0 -m*l J+m*l^2])*[0; 0; 1; 0];
-C = eye(4, 4);
-D = zeros(4, 1);
-Cp = eye(1, 4);
-Dp = zeros(1, 1);
+% A = ;
+% B = ;
+C = eyes
+% D = ;
+% Cp = ;
+% Dp = ;
 
-%%
-
-eigs = eig(A);
-
-% zpkdata gets the zeros, poles and gains of the system
-% 'v' tells it to give them in vector form, not a cell
-sys = ss(A, B, Cp, Dp);
-[z, p, k] = zpkdata(sys, 'v');
-
-% ctrb gives the controllability (reachability) matrix
-reach = ctrb(A, B);
-det_reach = det(reach);
-fprintf('Determinant is %f.4\n', det_reach);
-
-
-%%
 
 % define system initial condition here 
 % states = [postion; angle; velocity; angular velocity];
