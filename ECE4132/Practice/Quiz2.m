@@ -28,3 +28,11 @@ CTovershoot = CTinfo.Overshoot;
 DTrise = DTinfo.RiseTime;
 DTsettle = DTinfo.SettlingTime;
 DTovershoot = DTinfo.Overshoot;
+
+%%
+lsim
+% used to simulate system response to arbitrary input
+
+%% The Quiz
+
+

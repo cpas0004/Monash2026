@@ -35,12 +35,27 @@ reach = ctrb(A, B);
 det_reach = det(reach);
 fprintf('Determinant is %f.4\n', det_reach);
 
+%%
+
+% using place to get the K matrix based on the closed loop poles we want
+desired_poles = [-4+1i, -4-1i, -6+0.5*1i, -6-0.5*1i];
+K = place(A, B, desired_poles);
+
+fprintf('K matrix is: %f.3\n', K);
+
+% This checs that the poles are where we want
+eig(A-B*K)
+
+% Computing kr
+kr = -inv(Cp*inv(A-B*K)*B);
+
+fprintf('kr is: %f.3', kr);
 
 %%
 
 % define system initial condition here 
 % states = [postion; angle; velocity; angular velocity];
-xinit = [0;0;0;0]; 
+xinit = [0;0.8;0;0]; 
 % xinit = [0;0;0.1;0]; 
 % xinit = [0;0.1;0;0]; 
 
@@ -50,5 +65,15 @@ stepFinal = 0;
 % compute open loop transfer function data here
 
 % set desired eigenvalues, controller parameters, here
+
+maxforce = max(force.data);
+minforce = min(force.data);
+
+pos = simout.Data(:,1);
+t = simout.Time;
+
+stepinfo(pos, t, "SettlingTimeThreshold", 0.02)
+
+
 
 
